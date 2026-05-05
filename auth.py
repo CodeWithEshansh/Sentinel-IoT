@@ -5,8 +5,15 @@ import base64
 import time
 from datetime import datetime
 
-CONFIG_FILE = os.path.join(os.path.dirname(os.path.abspath(__file__)), ".secure_config.json")
-AUDIT_FILE = os.path.join(os.path.dirname(os.path.abspath(__file__)), ".audit_log.txt")
+import sys
+
+if getattr(sys, 'frozen', False):
+    base_dir = os.path.dirname(sys.executable)
+else:
+    base_dir = os.path.dirname(os.path.abspath(__file__))
+
+CONFIG_FILE = os.path.join(base_dir, ".secure_config.json")
+AUDIT_FILE = os.path.join(base_dir, ".audit_log.txt")
 
 class AuthManager:
     def __init__(self):

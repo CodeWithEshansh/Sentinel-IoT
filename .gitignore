@@ -1,5 +1,7 @@
 __pycache__/
 build/
-*.spec
+dist/
+*.exe
 .secure_config.json
 .audit_log.txt
+.DS_Store

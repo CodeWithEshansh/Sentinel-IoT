@@ -5,6 +5,7 @@ import sys
 import threading
 import time
 import requests
+import multiprocessing
 import customtkinter as ctk
 from tkinter import messagebox, ttk
 
@@ -21,14 +22,7 @@ if getattr(sys, 'frozen', False):
 else:
     PYTHON_EXE = sys.executable
 
-try:
-    from device_simulator import DeviceSimulator
-except ImportError:
-    class DeviceSimulator: 
-        def __init__(self, **kwargs): self.running = False
-        def start(self): self.running = True
-        def stop(self): self.running = False
-        def set_attack_mode(self, val): pass
+from device.device_simulator import DeviceSimulator
 
 class SentinelGUI(ctk.CTk):
     def __init__(self):
@@ -253,9 +247,6 @@ class SentinelGUI(ctk.CTk):
         self.log_tree.column("Message", width=600, anchor="w")
         self.log_tree.pack(fill="both", expand=True, padx=15, pady=15)
 
-        # Pre-populate dummy devices
-        self.device_tree.insert("", "end", values=("device_camera_01", "IP Camera", "ALLOWED", "LOW"))
-        self.device_tree.insert("", "end", values=("device_thermo_02", "Smart HVAC", "ALLOWED", "LOW"))
         self.enqueue_log(f"SYSTEM: Initialized workspace for Admin: {self.current_user}")
 
     # --- ADMIN PANEL ---
@@ -327,17 +318,49 @@ class SentinelGUI(ctk.CTk):
 
     def flush_logs(self):
         while not self.log_queue.empty():
-            entry = self.log_queue.get()
-            self.log_tree.insert("", 0, values=entry) 
+            entry = self.log_queue.get() # (time, source, message)
+            self.log_tree.insert("", 0, values=entry)
+            
+            # Dynamic Device Discovery from logs
+            msg = entry[2]
+            if "Device registered:" in msg:
+                dev_id = msg.split("Device registered:")[1].strip()
+                # Check if already in tree
+                exists = False
+                for item in self.device_tree.get_children():
+                    if self.device_tree.item(item, "values")[0] == dev_id:
+                        exists = True; break
+                if not exists:
+                    category = "IoT Device"
+                    risk = "LOW"
+                    if "camera" in dev_id.lower(): 
+                        category = "IP Camera"
+                        risk = "MEDIUM"
+                    elif "thermo" in dev_id.lower(): 
+                        category = "Smart Sensor"
+                        risk = "LOW"
+                    elif "industrial" in dev_id.lower(): 
+                        category = "Industrial PLC"
+                        risk = "HIGH"
+                    self.device_tree.insert("", "end", values=(dev_id, category, "ALLOWED", risk))
+            
+            elif "BLOCKED" in msg:
+                # Format: "device_id BLOCKED after repeated anomalies"
+                dev_id = msg.split(" ")[0].strip()
+                for item in self.device_tree.get_children():
+                    values = list(self.device_tree.item(item, "values"))
+                    if values[0] == dev_id:
+                        values[2] = "BLOCKED"
+                        values[3] = "CRITICAL"
+                        self.device_tree.item(item, values=values)
+
         self.after(200, self.flush_logs)
 
     # --- PROCESS HELPERS ---
     def launch_process(self, key, script):
-        script_path = os.path.join(BASE_DIR, script)
-        if not os.path.exists(script_path):
-            self.enqueue_log(f"ERROR: Cannot find {script_path}")
-            return
-        process = subprocess.Popen([PYTHON_EXE, script_path], cwd=BASE_DIR, 
+        exe = sys.executable
+        arg = "--run-ai" if key == "ai_server" else "--run-zt"
+        process = subprocess.Popen([exe, arg], cwd=BASE_DIR, 
                                  stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True)
         self.processes[key] = process
         threading.Thread(target=self.stream_output, args=(key, process), daemon=True).start()
@@ -390,5 +413,16 @@ class SentinelGUI(ctk.CTk):
         self.destroy()
 
 if __name__ == "__main__":
+    if len(sys.argv) > 1:
+        if sys.argv[1] == "--run-ai":
+            from ai.ai_server import app
+            app.run(port=5001, use_reloader=False)
+            sys.exit(0)
+        elif sys.argv[1] == "--run-zt":
+            from server.app import app
+            app.run(port=5000, use_reloader=False)
+            sys.exit(0)
+            
+    multiprocessing.freeze_support()
     app = SentinelGUI()
     app.mainloop()

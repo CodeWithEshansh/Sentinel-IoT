@@ -2,6 +2,8 @@ from flask import Flask, request, jsonify
 import joblib
 import numpy as np
 import logging
+from sklearn.ensemble import IsolationForest
+from sklearn.preprocessing import StandardScaler
 
 logging.basicConfig(level=logging.INFO)
 log = logging.getLogger("ai")
@@ -52,6 +54,3 @@ def health():
 
 if __name__ == "__main__":
     app.run(port=5001)
-@app.route("/health")
-def health():
-    return {"status": "ok"}
