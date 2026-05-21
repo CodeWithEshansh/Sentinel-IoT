@@ -87,7 +87,7 @@ Sentinel-IoT/
 ## ⚙️ Setup
 
 ### 🔽 Clone Repo
-git clone https://github.com/your-username/sentinel-iot.git
+git clone https://github.com/CodeWithEshansh/Sentinel-Iot.git
 
 cd sentinel-iot
 
