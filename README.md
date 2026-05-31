@@ -16,7 +16,21 @@
 ---
 
 ## 🧩 System Architecture
-📡 Devices → 🛡️ Zero Trust Server → 🤖 AI Server → ⚖️ Decision Engine → 🚫 Block / ✅ Allow
+
+Device
+   ↓
+Zero Trust Authentication
+   ↓
+Traffic Validation
+   ↓
+AI Anomaly Detection
+   ↓
+Decision Engine
+   ↓
+Allow / Block
+<br>
+Working Video of the Prototype developed:
+
 
 
 ---
@@ -71,11 +85,11 @@ Sentinel-IoT/
 │ └ scaler.pkl
 │
 ├ device/
-│ ├ init.py
+│ ├ __init__.py
 │ └ device.py
 │
 ├ server/
-│ ├ init.py
+│ ├ __init__.py
 │ └ app.py
 │
 ├ gui.py
