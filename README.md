@@ -16,7 +16,7 @@
 ---
 
 ## 🧩 System Architecture
-
+<br>
 Device
    ↓
 Zero Trust Authentication
