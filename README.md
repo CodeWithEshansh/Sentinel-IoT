@@ -17,17 +17,7 @@
 
 ## 🧩 System Architecture
 <br>
-Device
-   ↓
-Zero Trust Authentication
-   ↓
-Traffic Validation
-   ↓
-AI Anomaly Detection
-   ↓
-Decision Engine
-   ↓
-Allow / Block
+<img width="1983" height="793" alt="image" src="https://github.com/user-attachments/assets/f2845310-4b59-47f7-9bee-6cc70a00dd3d" />
 <br>
 Working Video of the Prototype developed:
 
