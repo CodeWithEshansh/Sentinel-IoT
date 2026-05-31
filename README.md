@@ -20,7 +20,7 @@
 <img width="1983" height="793" alt="image" src="https://github.com/user-attachments/assets/f2845310-4b59-47f7-9bee-6cc70a00dd3d" />
 <br>
 Working Video of the Prototype developed:
-
+➡️ [View Full Demonstration (v1.0.0)](https://github.com/CodeWithEshansh/Sentinel-IoT/releases/tag/v1.0.0)
 
 
 ---
